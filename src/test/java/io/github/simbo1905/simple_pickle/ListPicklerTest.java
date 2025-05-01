@@ -1,5 +1,6 @@
 package io.github.simbo1905.simple_pickle;
 
+import io.github.simbo1905.simple_pickle.protocol.Push;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
@@ -139,6 +140,19 @@ public class ListPicklerTest {
 
     // Verify buffer is fully consumed
     assertEquals(buffer.limit(), buffer.position());
+  }
+
+  @Test
+  void sealedInterfacesLists() {
+    final List<Push> original = List.of(
+        new Push("hello"),
+        new Push("hello"),
+        new Push("hello"),
+        new Push("hello"));
+    int size = Pickler.sizeOfList(Push.class, original);
+    ByteBuffer buffer = ByteBuffer.allocate(size);
+    Pickler.serializeList(Push.class, original, buffer);
+
   }
 
 }

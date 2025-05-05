@@ -1,7 +1,29 @@
 # No Framework Pickler
 
-No Framework Pickler: A tiny, fast, type safe, zero-dependency Java serialization library in a single java source file.  
-It creates type-safe, reflection-free serializers for records and sealed interfaces—perfect. It is perfect for building secure, modern message protocols of sealed interfaces. It supports nested records, arrays, maps and simple enum constants. Binary backwards compatibility is enabled through alternative constructors and adding components to the end of the record declaration (see Schema Evolution section below).
+A tiny serialization library that generates elegant, fast, type-safe serializers for Java records and sealed interfaces in a single Java source file — perfect for building elegant message protocols using modern idiomatic Java.
+It supports nested records, arrays, maps and simple enum constants. Binary backwards compatibility is enabled through alternative constructors and adding components to the end of the record declaration (see Schema Evolution section below).
+
+```java
+// Given a sealed interface and its permitted record types:
+public sealed interface TreeNode permits TreeNode.InternalNode, TreeNode.LeafNode {
+  record LeafNode(int value) implements TreeNode { }
+  record InternalNode(String name, TreeNode left, TreeNode right) implements TreeNode { }
+}
+
+// And a pickler for the sealed interface:
+Pickler<TreeNode> treeNodePickler = Pickler.forSealedInterface(TreeNode.class);
+
+// When we serialize a tree of nodes to a ByteBuffer:
+ByteBuffer buffer = ByteBuffer.allocate(1024);
+treeNodePickler.serialize(rootNode, buffer);
+
+// And deserialize it back:
+buffer.flip();
+TreeNode deserializedRoot = treeNodePickler.deserialize(buffer);
+
+// Then the deserialized tree structure is identical to the original
+
+```
 
 It works with nested sealed interfaces of permitted record types or an outer array of such where the records may contain arbitrarily nested:
 
